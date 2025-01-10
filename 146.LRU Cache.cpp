@@ -1,0 +1,188 @@
+/*
+ * @lc app=leetcode id=146 lang=cpp
+ * @lcpr version=20004
+ *
+ * [146] LRU Cache
+ *
+ * https://leetcode.com/problems/lru-cache/description/
+ *
+ * algorithms
+ * Medium (43.98%)
+ * Likes:    21305
+ * Dislikes: 1102
+ * Total Accepted:    1.9M
+ * Total Submissions: 4.3M
+ * Testcase Example:  '["LRUCache","put","put","get","put","get","put","get","get","get"]\n' +
+  '[[2],[1,1],[2,2],[1],[3,3],[2],[4,4],[1],[3],[4]]'
+ *
+ * Design a data structure that follows the constraints of a Least Recently
+ * Used (LRU) cache.
+ * 
+ * Implement the LRUCache class:
+ * 
+ * 
+ * LRUCache(int capacity) Initialize the LRU cache with positive size
+ * capacity.
+ * int get(int key) Return the value of the key if the key exists, otherwise
+ * return -1.
+ * void put(int key, int value) Update the value of the key if the key exists.
+ * Otherwise, add the key-value pair to the cache. If the number of keys
+ * exceeds the capacity from this operation, evict the least recently used
+ * key.
+ * 
+ * 
+ * The functions get and put must each run in O(1) average time complexity.
+ * 
+ * 
+ * Example 1:
+ * 
+ * Input
+ * ["LRUCache", "put", "put", "get", "put", "get", "put", "get", "get", "get"]
+ * [[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]
+ * Output
+ * [null, null, null, 1, null, -1, null, -1, 3, 4]
+ * 
+ * Explanation
+ * LRUCache lRUCache = new LRUCache(2);
+ * lRUCache.put(1, 1); // cache is {1=1}
+ * lRUCache.put(2, 2); // cache is {1=1, 2=2}
+ * lRUCache.get(1);    // return 1
+ * lRUCache.put(3, 3); // LRU key was 2, evicts key 2, cache is {1=1, 3=3}
+ * lRUCache.get(2);    // returns -1 (not found)
+ * lRUCache.put(4, 4); // LRU key was 1, evicts key 1, cache is {4=4, 3=3}
+ * lRUCache.get(1);    // return -1 (not found)
+ * lRUCache.get(3);    // return 3
+ * lRUCache.get(4);    // return 4
+ * 
+ * 
+ * 
+ * Constraints:
+ * 
+ * 
+ * 1 <= capacity <= 3000
+ * 0 <= key <= 10^4
+ * 0 <= value <= 10^5
+ * At most 2 * 10^5 calls will be made to get and put.
+ * 
+ * 
+ */
+
+
+// @lcpr-template-start
+using namespace std;
+#include <algorithm>
+#include <array>
+#include <bitset>
+#include <climits>
+#include <deque>
+#include <functional>
+#include <iostream>
+#include <list>
+#include <queue>
+#include <stack>
+#include <tuple>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+// @lcpr-template-end
+// @lc code=start
+class Node {
+public:
+    int key,val;
+    Node* next;
+    Node* prev;
+    Node(int k, int v): key(k),val(v){
+        next = nullptr;
+        prev = nullptr;
+    }
+};
+class DL {
+public:
+    Node* head;
+    Node* tail;
+    int size;
+    DL(){
+        head = new Node(0,0);
+        tail = new Node(0,0);
+        size = 0;
+        head->next = tail;
+        head->prev = nullptr;
+        tail->next = nullptr;
+        tail->prev = head;
+    }
+
+    void insert(Node* i){
+        auto last = tail->prev;
+        last->next = i;
+        i->prev = last;
+        i->next = tail;
+        tail->prev = i;
+        size++;
+    }
+
+    void remove(Node* i){
+        auto p = i->prev;
+        auto n = i->next;
+        p->next = n;
+        n->prev = p;
+        size--;
+    }
+
+    Node* removeFirst(){
+        auto p = head->next;
+        p->next->prev = head;
+        head->next = p->next;
+        size--;
+        return p;
+    }
+
+    int getS(){ return size;}
+};
+class LRUCache {
+public:
+    unordered_map<int,Node*> mp;
+    int cap;
+    DL doubleLink;
+    LRUCache(int capacity):cap(capacity) {
+        
+    }
+    
+    int get(int key) {
+        if(mp.count(key) == 0){
+            return -1;
+        }
+        int res = mp[key]->val;
+        doubleLink.remove(mp[key]);
+        mp.erase(key);
+        auto n = new Node(key,res);
+        mp[key] = n;
+        doubleLink.insert(n);
+        return res;
+    }
+    
+    void put(int key, int value) {
+        if(mp.count(key) != 0){
+            doubleLink.remove(mp[key]);
+            mp.erase(key);
+        }
+        auto temp = new Node(key,value);
+        doubleLink.insert(temp);
+        mp[key] = temp;
+        if(doubleLink.getS() > cap){
+            auto remov = doubleLink.removeFirst();
+            mp.erase(remov->key);
+        }
+    }
+};
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
+ */
+// @lc code=end
+
+
+

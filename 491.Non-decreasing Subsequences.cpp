@@ -63,9 +63,12 @@ using namespace std;
 // @lc code=start
 class Solution {
 public:
+    vector<vector<int>> res;
     vector<vector<int>> findSubsequences(vector<int>& nums) {
         
     }
+
+    void bf(vector<int>& nums, )
 };
 // @lc code=end
 
