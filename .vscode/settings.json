@@ -10,6 +10,7 @@
         "iterator": "cpp",
         "xhash": "cpp",
         "xmemory": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "unordered_set": "cpp"
     }
 }

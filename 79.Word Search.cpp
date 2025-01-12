@@ -82,8 +82,41 @@ using namespace std;
 // @lc code=start
 class Solution {
 public:
+    bool finde = false;
     bool exist(vector<vector<char>>& board, string word) {
-        
+        int row = board.size(), col = board[0].size();
+        vector<pair<int,int>> directons{{-1,0},{1,0},{0,1},{0,-1}};
+        vector<vector<int>> visited(row,vector<int>(col,0));
+        for(int i = 0; i < row; i++){
+            for(int j = 0; j < col;j++){
+                if(board[i][j] == word[0]){
+                    dfs(i,j,visited,board,0,word);
+                    if(finde) return true;
+                }
+            }
+        }
+        return finde;
+    }
+
+
+    void dfs(int i, int j, vector<vector<int>>& visited,vector<vector<char>>& board,int ind,string word){
+        if( i < 0 || i > board.size()-1 || j < 0 || j > board[0].size()-1) return;
+        if(finde) return;
+
+        if(visited[i][j] == 1) return;
+        if(ind == word.size()-1 && board[i][j] == word[ind]){
+            finde = true;
+            return;
+        }
+        if(word[ind] == board[i][j]){
+            visited[i][j] = 1;
+            dfs(i+1,j,visited,board,ind+1,word);
+            dfs(i,j+1,visited,board,ind+1,word);
+            dfs(i,j-1,visited,board,ind+1,word);
+            dfs(i-1,j,visited,board,ind+1,word);
+            visited[i][j] = 0;
+        }
+        return;
     }
 };
 // @lc code=end
