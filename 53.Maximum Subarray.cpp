@@ -76,7 +76,14 @@ using namespace std;
 class Solution {
 public:
     int maxSubArray(vector<int>& nums) {
-        
+        vector<int> dp(nums.size()+1,-9999);
+        int res = INT_MIN;
+
+        for(int i = 1; i < dp.size(); i++){
+            dp[i] = max(dp[i-1] + nums[i-1], nums[i-1]);
+            res = max(res,dp[i]);
+        }
+        return res;
     }
 };
 // @lc code=end
