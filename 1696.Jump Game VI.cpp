@@ -79,10 +79,59 @@ using namespace std;
 #include <vector>
 // @lcpr-template-end
 // @lc code=start
+class MonoQueue {
+public:
+    deque<long long> maxq;
+    deque<long long> minq;
+
+    void push(long long s){
+        while(!maxq.empty() && maxq.back() < s){
+            maxq.pop_back();
+        }
+        while(!minq.empty() && minq.back() > s){
+            minq.pop_back();
+        }
+        maxq.push_back(s);
+        minq.push_back(s);
+    }
+
+    void pop(long long s){
+        if(maxq.front() == s){
+            maxq.pop_front();
+        }
+        if(minq.front() == s){
+            minq.pop_front();
+        }
+    }
+
+    int min(){
+        return minq.front();
+    }
+
+    int max(){
+        return maxq.front();
+    }
+
+    bool empty(){
+        return maxq.empty();
+    }
+};
 class Solution {
 public:
     int maxResult(vector<int>& nums, int k) {
-        
+        vector<int> dp(nums);
+
+        MonoQueue m;
+        int left = 0, right = 1;
+        m.push(dp[0]);
+        while(right < nums.size()){
+            dp[right] = m.max()+dp[right];
+            m.push(dp[right++]);
+            if(right - left > k){
+                m.pop(dp[left++]);
+            }
+        }
+        return dp[nums.size()-1];
     }
 };
 // @lc code=end
