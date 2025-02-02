@@ -58,24 +58,20 @@
 # @lc code=start
 class Solution:
     def lengthOfLongestSubstring(self, s: str) -> int:
-        left,right = 0, 0
-        window = defaultdict(lambda:0)
-        res,count = 0,0
-        
+        left = 0
+        right = 0
+        res = 0
+        mp = defaultdict(int)
         while right < len(s):
-            c = s[right]
-            right += 1
-            if window[c] is 0:
-                count += 1
-                window[c] += 1
-                res = max(count,res)
-            else:
-                while s[left] != c:
-                    window[s[left]] -= 1
-                    left += 1
-                left += 1
-                count = right - left
-        
+            mp[s[right]]+=1
+            
+            while mp[s[right]] > 1:
+                mp[s[left]] -= 1
+                left+=1
+            right+=1
+            res = max(res,right-left)
+            
+            
         return res
                 
                 

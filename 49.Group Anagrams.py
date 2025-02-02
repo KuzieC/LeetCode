@@ -70,7 +70,14 @@
 # @lc code=start
 class Solution:
     def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
-        
+        mp = defaultdict(list)
+        res = []
+        for i in strs:
+            a = "".join(sorted(i))
+            mp[a].append(i)
+        for lis in mp.values():
+            res.append(lis)
+        return res
 # @lc code=end
 
 
