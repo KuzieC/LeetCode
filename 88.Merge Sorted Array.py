@@ -77,28 +77,27 @@
 # @lc code=start
 class Solution:
     def merge(self, nums1: List[int], m: int, nums2: List[int], n: int) -> None:
-        """
-        Do not return anything, modify nums1 in-place instead.
-        """
-        p = m+n-1
-        
-        left = m-1
-        right = n-1
-        
-        
-        while left >= 0 and right >= 0:
-            if nums1[left] < nums2[right]:
-                nums1[p] = nums2[right]
-                right -= 1
+        i = m - 1
+        j = n - 1
+        q = m+n - 1
+        while i >= 0 and j >= 0:
+            if nums1[i] > nums2[j]:
+                nums1[q] = nums1[i]
+                q-=1
+                i-=1
             else:
-                nums1[p] = nums1[left]
-                left -= 1
-            p -= 1
-        
-        while right >= 0:
-            nums1[p] = nums2[right]
-            p -= 1
-            right -= 1
+                nums1[q] = nums2[j]
+                q-=1
+                j-=1
+        while i >= 0:
+            nums1[q] = nums1[i]
+            q-=1
+            i-=1
+        while j >= 0:
+            nums1[q] = nums2[j]
+            q-=1
+            j-=1
+            
                     
 # @lc code=end
 
