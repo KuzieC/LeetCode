@@ -70,7 +70,33 @@
 # @lc code=start
 class Solution:
     def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:
-        
+        res = 0
+        wordlis = set(wordList)
+        def check(aa:str ,bb:str ):
+            dif = sum(a != b for a,b in zip(aa,bb))
+            return dif == 1
+        q = []
+        q.append(beginWord)
+        vis = set()
+        while len(q) > 0:
+            res+=1
+            for i in range(len(q)):
+                curr = q.pop(0)
+                if curr == endWord:
+                    return res
+                for j in range(len(curr)):
+                    curr = list(curr)
+                    ori = curr[j]
+                    for c in "abcdefghijklmnopqrstuvwxyz":
+                        curr[j] = c
+                        if "".join(curr) in wordlis and "".join(curr) not in vis:
+                            vis.add("".join(curr))
+                            q.append("".join(curr))
+                    curr[j] = ori
+        return 0
+                        
+            
+            
 # @lc code=end
 
 
