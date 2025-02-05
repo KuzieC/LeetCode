@@ -49,17 +49,19 @@
 class Solution:
     def topKFrequent(self, nums: List[int], k: int) -> List[int]:
         mp = defaultdict(int)
-        for num in nums:
-            mp[num]+=1
-        pq = []
+        for i in nums:
+            mp[i] += 1
+        q = []
         res = []
+        vp = defaultdict(list)
         for val,freq in mp.items():
-            heapq.heappush(pq,(freq,val))
-            if len(pq) > k:
-                heapq.heappop(pq)
-        for _,val in pq:
-            res.append(val)
-        return res
+            vp[freq].append(val)
+        vp = sorted(vp.items(),key = lambda i : i[0], reverse=True)
+        for _,v in vp:
+            res.extend(v)
+            if len(res) == k:
+                return res
+        return None
 # @lc code=end
 
 

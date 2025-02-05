@@ -1,0 +1,86 @@
+#
+# @lc app=leetcode id=50 lang=python3
+# @lcpr version=30002
+#
+# [50] Pow(x, n)
+#
+# https://leetcode.com/problems/powx-n/description/
+#
+# algorithms
+# Medium (36.29%)
+# Likes:    10375
+# Dislikes: 9957
+# Total Accepted:    2M
+# Total Submissions: 5.6M
+# Testcase Example:  '2.00000\n10'
+#
+# Implement pow(x, n), which calculates x raised to the power n (i.e., x^n).
+# 
+# 
+# Example 1:
+# 
+# Input: x = 2.00000, n = 10
+# Output: 1024.00000
+# 
+# 
+# Example 2:
+# 
+# Input: x = 2.10000, n = 3
+# Output: 9.26100
+# 
+# 
+# Example 3:
+# 
+# Input: x = 2.00000, n = -2
+# Output: 0.25000
+# Explanation: 2^-2 = 1/2^2 = 1/4 = 0.25
+# 
+# 
+# 
+# Constraints:
+# 
+# 
+# -100.0 < x < 100.0
+# -2^31 <= n <= 2^31-1
+# n is an integer.
+# Either x is not zero or n > 0.
+# -10^4 <= x^n <= 10^4
+# 
+# 
+#
+
+
+# @lcpr-template-start
+
+# @lcpr-template-end
+# @lc code=start
+class Solution:
+    def myPow(self, x: float, n: int) -> float:
+        if n < 0: 
+            return self.myPow(1/x,-n)
+        if n == 0:
+            return 1
+        if n % 2 == 0:
+            r = self.myPow(x,n/2)
+            return r*r
+        if n % 2 == 1:
+            return self.myPow(x,n-1)*x
+# @lc code=end
+
+
+
+#
+# @lcpr case=start
+# 2.00000\n10\n
+# @lcpr case=end
+
+# @lcpr case=start
+# 2.10000\n3\n
+# @lcpr case=end
+
+# @lcpr case=start
+# 2.00000\n-2\n
+# @lcpr case=end
+
+#
+
