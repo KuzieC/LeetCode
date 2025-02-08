@@ -63,7 +63,31 @@
 # @lc code=start
 class Solution:
     def constrainedSubsetSum(self, nums: List[int], k: int) -> int:
-        
+        dp = [0 for _ in range(len(nums))]
+        s= []
+        left = 0
+        right = 0
+        res = -99999
+        while right < len(nums):
+            if right - left > k:
+                if s[0] == dp[left]:
+                    s.pop(0)
+                left+=1
+            if s:
+                dp[right] = max(nums[right],nums[right]+s[0])
+            else:
+                dp[right] = nums[right]
+            while s and s[-1] < dp[right]:
+                s.pop()
+            s.append(dp[right])
+            right+=1 
+            #print(dp)
+        for i in dp:
+            res = max(res,i)
+        return res
+                
+            
+
 # @lc code=end
 
 

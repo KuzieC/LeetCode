@@ -64,9 +64,27 @@
 
 # @lcpr-template-end
 # @lc code=start
+from collections import deque
 class Solution:
     def maxResult(self, nums: List[int], k: int) -> int:
-        
+        dp = [0 for _ in range(len(nums))]
+        s = deque()
+        dp[0] = nums[0]
+        s.append(nums[0])
+        left = 0
+        right = 1
+        while right < len(nums):
+            if right - left > k:
+                if dp[left] == s[0]:
+                    s.popleft()
+                left+=1
+            if s:
+                dp[right] = s[0] + nums[right]
+            while s and s[-1] < dp[right]:
+                s.pop()
+            s.append(dp[right])
+            right+=1
+        return dp[-1]
 # @lc code=end
 
 
