@@ -69,32 +69,18 @@
 class Solution:
     def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
         res = []
-        track = [[]]
-        candidates.sort()
-        curr = []
-        currSum = 0
-        lastModeified = []
         
-        for i in candidates:
+        def bt(curr,cand,ind):
+            if curr > target or ind > len(candidates):
+                return
+            if curr == target:
+                res.append(cand)
+                return
+            for i in range(ind,len(candidates)):
+                bt(curr+candidates[i],cand+[candidates[i]],i)
             
-            lastModeified = []
-            for j in track:
-                curr = j + [i]
-                currSum = sum(curr)
-                
-                while currSum <= target:
-                    if currSum == target:
-                        res.append(curr[:])
-                        break
-                    lastModeified.append(curr)
-                    curr = curr + [i]
-                    currSum += i
-                
-            track.extend(lastModeified)
-                
-                    
-
-        return res
+        bt(0,[],0)           
+        return list(res)
         
         
 # @lc code=end
