@@ -12,30 +12,23 @@
 # @lc code=start
 class Solution:
     def productExceptSelf(self, nums: List[int]) -> List[int]:
+        preProduct = [ 0 for _ in range(len(nums))]
+        postProduct = [ 0 for _ in range(len(nums))]
+        preProduct[0] = 1
+        for i in range(1,len(nums)):
+            preProduct[i] = preProduct[i-1] * nums[i-1]
         
-        preArray = [_ for _ in nums]
-        postArray = [_ for _ in nums]
-        res = [_ for _ in nums]
-        for i in range(len(nums)):
-            if i == 0:
-                preArray[i] = 1
-            else:
-                preArray[i] = preArray[i-1] * nums[i-1]
-        print(preArray)
-        for i in range(len(nums)-1,-1,-1):
-            if i == len(nums)-1:
-                postArray[i] = 1
-            else:
-                postArray[i] = postArray[i+1] * nums[i+1]
-        print(postArray)
-        for i in range(len(nums)):
-            if i == 0:
-                res[i] = 1 * postArray[i]
-            elif i == len(nums)-1:
-                res[i] = 1 * preArray[i]
-            else:
-                res[i] = preArray[i] * postArray[i]
-        return res        
+        postProduct[-1] = 1
+        for i in range(len(nums)-2,-1,-1):
+            postProduct[i] = postProduct[i+1] * nums[i+1]
+        
+        res = []
+        for x,y in zip(preProduct,postProduct):
+            res.append(x*y)
+        return res
+            
+        
+        
 # @lc code=end
 
 

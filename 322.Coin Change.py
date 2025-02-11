@@ -41,14 +41,23 @@
 
 class Solution:
     def coinChange(self,coins,amount)->int:
-        dp = [amount+1] * (amount+1)
-        dp[0] = 0
-        for i in range(amount+1):
-            for coin in coins:
-                if i >= coin:
-                    dp[i] = min(dp[i],dp[i-coin]+1)
+        if amount == 0:
+            return 0
+        dp = [0 for _ in range(amount+1)]
+        for i in coins:
+            if i <= amount:
+                dp[i] = 1   
         
-        return -1 if dp[amount] == amount +1 else dp[amount]
+        for i in range(1,amount+1):
+            for j in coins:
+                if i - j > 0 and dp[i-j] != 0:
+                    val = dp[i-j] + 1
+                    if dp[i] == 0:
+                        dp[i] = val
+                    else:
+                        dp[i] = min(dp[i], val)
+        return -1 if dp[amount] == 0 else dp[amount]
+        
                     
     
 # @lc code=end
