@@ -87,91 +87,80 @@ using namespace std;
 #include <vector>
 // @lcpr-template-end
 // @lc code=start
-class Node {
+class Node  {
 public:
-    int key,val;
-    Node* next;
+    int val;
+    int key;
     Node* prev;
-    Node(int k, int v): key(k),val(v){
-        next = nullptr;
+    Node* next;
+    Node(int val, int key): val(val), key(key) {
         prev = nullptr;
+        next = nullptr;
     }
 };
-class DL {
+class LinkList {
 public:
     Node* head;
     Node* tail;
-    int size;
-    DL(){
-        head = new Node(0,0);
-        tail = new Node(0,0);
-        size = 0;
+    int cap;
+    int siz;
+    LinkList(int s) : cap(s), siz(0) {
+        head = new Node(-1,-1);
+        tail = new Node(-1,-1);
         head->next = tail;
-        head->prev = nullptr;
-        tail->next = nullptr;
         tail->prev = head;
     }
 
-    void insert(Node* i){
-        auto last = tail->prev;
-        last->next = i;
-        i->prev = last;
-        i->next = tail;
-        tail->prev = i;
-        size++;
+    Node* insert(int key,int val){
+        Node* newNode = new Node(val,key);
+        auto temp = tail->prev;
+        temp->next = newNode;
+        newNode->prev = temp;
+        newNode->next = tail;
+        tail->prev = newNode;
+        siz++;
+        return newNode;
     }
 
-    void remove(Node* i){
-        auto p = i->prev;
-        auto n = i->next;
-        p->next = n;
-        n->prev = p;
-        size--;
+    void remove(Node* node){
+        siz--;
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
+        node->next = nullptr;
+        node->prev = nullptr;
+        delete node;
     }
 
-    Node* removeFirst(){
-        auto p = head->next;
-        p->next->prev = head;
-        head->next = p->next;
-        size--;
-        return p;
-    }
-
-    int getS(){ return size;}
 };
 class LRUCache {
 public:
     unordered_map<int,Node*> mp;
-    int cap;
-    DL doubleLink;
-    LRUCache(int capacity):cap(capacity) {
-        
+    int siz;
+    LinkList* link;
+    LRUCache(int capacity): siz(capacity) {
+        link = new LinkList(capacity);
+
     }
     
     int get(int key) {
-        if(mp.count(key) == 0){
+        if (mp.find(key) == mp.end()){
             return -1;
         }
-        int res = mp[key]->val;
-        doubleLink.remove(mp[key]);
-        mp.erase(key);
-        auto n = new Node(key,res);
-        mp[key] = n;
-        doubleLink.insert(n);
-        return res;
+        int val = mp[key]->val;
+        link->remove(mp[key]);
+        auto newNode = link->insert(key,val);
+        mp[key] = newNode;
+        return val;
     }
     
     void put(int key, int value) {
-        if(mp.count(key) != 0){
-            doubleLink.remove(mp[key]);
-            mp.erase(key);
+        if (mp.find(key) != mp.end()){
+            link->remove(mp[key]);
         }
-        auto temp = new Node(key,value);
-        doubleLink.insert(temp);
-        mp[key] = temp;
-        if(doubleLink.getS() > cap){
-            auto remov = doubleLink.removeFirst();
-            mp.erase(remov->key);
+        auto newNode = link->insert(key,value);
+        mp[key] = newNode;
+        if (link->siz > siz){
+            link->remove(link->head->next);
         }
     }
 };
