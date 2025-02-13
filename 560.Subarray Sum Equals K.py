@@ -45,16 +45,16 @@
 # @lc code=start
 class Solution:
     def subarraySum(self, nums: List[int], k: int) -> int:
-        presum = [0] * (len(nums)+1)
+        presum = [0 for _ in range(len(nums)+1)]
         for i in range(len(nums)):
             presum[i+1] = presum[i] + nums[i]
         res = 0
-        seen = defaultdict(int)
+        mp = defaultdict(int)
         for i in presum:
-            if i - k in seen:
-                res+=seen[i-k]
-            seen[i]+=1
-                    
+            if i - k in mp:
+                res += mp[i-k]
+            mp[i] += 1
+        
         return res
         
 # @lc code=end

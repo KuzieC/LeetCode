@@ -43,23 +43,36 @@
 # @lcpr-template-end
 # @lc code=start
 class Solution:
-    def reorganizeString(self, s: str) -> str:
-        n = len(s)
+    def reorganizeString(self, str: str) -> str:
         mp = defaultdict(int)
-        for i in s:
+        s = []
+        res = ""
+        for i in str:
             mp[i] += 1
-        for val in mp.values():
-            if val > (n+1)//2:
+        for k,v in mp.items():
+            heappush(s,(-1 * v,k))
+        print(s)
+        while len(s) > 1:
+            v1, k1 = heappop(s)
+            v2, k2 = heappop(s)
+            v1 = v1 * -1
+            v2 = v2 * -1
+            res+= k1
+            res+= k2
+            if v1 > 1:
+                heappush(s,(-1 * (v1-1),k1))
+            if v2 > 1:
+                heappush(s,(-1 * (v2-1),k2))
+        if len(s) == 1:
+            v, k  = heappop(s)
+            if v*-1 == 1 and (not res or res[-1] != k):
+                res += k
+            else:
                 return ""
-        res = [""] * n
-        ind = 0
-        for val, rep in sorted(mp.items(),key = lambda x: -x[1]):
-            for _ in range(rep):
-                if ind >= n:
-                    ind = 1
-                res[ind] = val
-                ind += 2
-        return "".join(res)
+        return res    
+        
+            
+        
             
 # @lc code=end
 

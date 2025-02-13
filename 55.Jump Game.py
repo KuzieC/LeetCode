@@ -53,12 +53,12 @@
 # @lc code=start
 class Solution:
     def canJump(self, nums: List[int]) -> bool:
-        maxJump = 0
-        if len(nums) == 1: return True
+        longest = 0
+        
         for i in range(len(nums)):
-            if i > maxJump:
+            if i > longest:
                 return False
-            maxJump = max(maxJump,nums[i] + i)
+            longest = max(longest, i + nums[i])
         return True
 # @lc code=end
 
