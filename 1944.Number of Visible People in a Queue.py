@@ -67,17 +67,7 @@
 # @lc code=start
 class Solution:
     def canSeePersonsCount(self, heights: List[int]) -> List[int]:
-        res = [0 for _ in range(len(heights))]
-        q = []
-        for i in range(len(res)-1,-1,-1):
-            count = 0
-            while q and heights[q[-1]] <= heights[i]:
-                q.pop()
-                count+=1
-            res[i] = count if not q else count+1
-            q.append(i) 
-                
-        return res
+
 # @lc code=end
 
 

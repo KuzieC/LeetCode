@@ -51,31 +51,21 @@
 # @lc code=start
 class Solution:
     def longestConsecutive(self, nums: List[int]) -> int:
-        res = 0
-        curr = 1
         mp = defaultdict(int)
+        nums = set(nums)
         for i in nums:
-            mp[i] = 1
-            
-        mp2 = defaultdict(int)
+            mp[i] += 1
         res = 0
         for i in nums:
-            if i-1 in mp:
-                continue
-            curr = i
-            maxx = 1
-            if i in mp2:
-                continue
-            while curr+1 in mp:
-                maxx+=1
-                if curr+1 in mp2:
-                    maxx += mp2[curr+1]
-                    break
-                curr+=1
-                #print(curr,maxx)
-            mp2[i] = maxx-1
-            res = max(res,maxx)
+            if i-1 not in mp:
+                curr = 0
+                num = i
+                while num in mp:
+                    num += 1
+                    curr += 1
+                res = max(res,curr)
         
+                
         return res
 # @lc code=end
 

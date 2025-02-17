@@ -54,28 +54,24 @@
 # @lc code=start
 class Solution:
     def maxWidthRamp(self, nums: List[int]) -> int:
-        res = []
-        currMax = 0
-        Back = []
-        #two pointer
-        for i in range(len(nums)-1,-1,-1):
-            currMax = max(currMax,nums[i])
-            Back.append(currMax)
-        i = 0
-        j = 0
-        while j < len(nums):
-            while Back[j] >= nums[i]:
-                
-        #monotonic stack
-        for i in range(len(nums)):
-            if not res or nums[res[-1]] > nums[i]:
-                res.append(i)
-        
+        maxRight = [0 for _ in range(len(nums))]
+        maxRight[-1] = nums[-1]
+        for i in range(len(nums)-2,-1,-1):
+            maxRight[i] = max(nums[i], maxRight[i+1])
         maxRamp = 0
-        for i in range(len(nums)-1,-1,-1):
-            while res and nums[i] >= nums[res[-1]]:
-                maxRamp = max(maxRamp,i - res[-1])
-                res.pop()
+        i = 0; j = 1
+        print(maxRight)
+        while j < len(nums):
+            
+            if nums[i] <= maxRight[j]:
+                while j < len(nums) and maxRight[j] == maxRight[j-1]:
+                    j+=1
+                maxRamp = max(j - i - 1,maxRamp)
+            else:
+                while i < len(nums) and nums[i] > maxRight[j]:
+                    i+=1
+            
+                
         return maxRamp
             
 # @lc code=end
