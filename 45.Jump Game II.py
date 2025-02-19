@@ -63,13 +63,13 @@
 class Solution:
     def jump(self, nums: List[int]) -> int:
         res = 0
-        end = 0
-        maxJump = 0
-        for i in range(0,len(nums)-1):
-            maxJump = max(maxJump,i+nums[i])
-            if end == i:
-                res+=1
-                end = maxJump
+        ma = 0
+        curr = 0
+        for i in range(len(nums)-1):
+            ma = max(ma,i+nums[i])
+            if i >= curr:
+                res += 1
+                curr = ma
             
         return res
             
