@@ -67,7 +67,17 @@
 # @lc code=start
 class Solution:
     def canSeePersonsCount(self, heights: List[int]) -> List[int]:
-
+        s = []
+        res = []
+        for i in reversed(heights):
+            curr = 0
+            while s and s[-1] <= i:
+                s.pop()
+                curr += 1
+            res.append(curr if len(s) == 0 else curr + 1)
+            s.append(i)
+        return list(reversed(res))
+            
 # @lc code=end
 
 
