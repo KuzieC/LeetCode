@@ -114,16 +114,73 @@ using namespace std;
 // @lc code=start
 class LFUCache {
 public:
+    int cap, minifre;
+    unordered_map<int,int> keyval;
+    unordered_map<int,int> keyfre;
+    unordered_map<int,list<int>> freqkey;
+    unordered_map<int,list<int>::iterator>keyIte;
     LFUCache(int capacity) {
-        
+        cap = capacity;
+        minifre = 1;
     }
     
     int get(int key) {
-        
+        if(keyval.find(key) == keyval.end()){
+            return -1;
+        }
+        int tempfreq = keyfre[key];
+        int tempval = keyval[key];
+        freqkey[tempfreq].erase(keyIte[key]);
+        freqkey[tempfreq+1].push_back(key);
+        keyIte[key] = prev(freqkey[tempfreq+1].end());
+        if(freqkey[tempfreq].empty()){
+            freqkey.erase(tempfreq);
+            if(minifre == tempfreq){
+                minifre++;
+            }
+        }
+        keyfre[key] = tempfreq+1;
+        //cout<<"now the oldest is "<<*(freqkey[minifre].begin())<<endl;
+
+        return tempval;
     }
-    
+    void removelfu(){
+        int key = *(freqkey[minifre].begin());
+        //cout<<"removing "<<key<<endl;;
+        freqkey[minifre].erase(freqkey[minifre].begin());
+        if(freqkey[minifre].empty()){
+            freqkey.erase(minifre);
+        }
+        keyIte.erase(key);
+        keyval.erase(key);
+        keyfre.erase(key);
+    }
     void put(int key, int value) {
-        
+
+        if(keyval.find(key) == keyval.end()){
+            //cout<<"putting "<<key<<" new"<<endl;
+            if(keyval.size() == cap){
+                //cout<<"reaching"<<endl;
+                removelfu();
+            }
+            keyval[key] = value;
+            keyfre[key] = 1;
+            minifre = 1;
+            freqkey[1].push_back(key);
+            keyIte[key]=prev(freqkey[1].end());
+            return;
+        }
+        //cout<<"putting "<<key<<" old"<<endl;
+        keyval[key] = value;
+        int tempfreq = keyfre[key];
+        keyfre[key] = tempfreq+1;
+        freqkey[tempfreq].erase(keyIte[key]);
+        freqkey[tempfreq+1].push_back(key);
+        keyIte[key] = prev(freqkey[tempfreq+1].end());
+        if(freqkey[tempfreq].empty()){
+            freqkey.erase(tempfreq);
+            if(minifre == tempfreq) minifre++;
+        }
     }
 };
 
