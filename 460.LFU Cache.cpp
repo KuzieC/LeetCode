@@ -110,80 +110,137 @@ using namespace std;
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <memory>
 // @lcpr-template-end
 // @lc code=start
-class LFUCache {
+class Node {
 public:
-    int cap, minifre;
-    unordered_map<int,int> keyval;
-    unordered_map<int,int> keyfre;
-    unordered_map<int,list<int>> freqkey;
-    unordered_map<int,list<int>::iterator>keyIte;
-    LFUCache(int capacity) {
-        cap = capacity;
-        minifre = 1;
-    }
-    
-    int get(int key) {
-        if(keyval.find(key) == keyval.end()){
-            return -1;
-        }
-        int tempfreq = keyfre[key];
-        int tempval = keyval[key];
-        freqkey[tempfreq].erase(keyIte[key]);
-        freqkey[tempfreq+1].push_back(key);
-        keyIte[key] = prev(freqkey[tempfreq+1].end());
-        if(freqkey[tempfreq].empty()){
-            freqkey.erase(tempfreq);
-            if(minifre == tempfreq){
-                minifre++;
-            }
-        }
-        keyfre[key] = tempfreq+1;
-        //cout<<"now the oldest is "<<*(freqkey[minifre].begin())<<endl;
+    int key;
+    int val;
+    int freq;
+    std::shared_ptr<Node> next;
+    std::weak_ptr<Node> prev;
 
-        return tempval;
-    }
-    void removelfu(){
-        int key = *(freqkey[minifre].begin());
-        //cout<<"removing "<<key<<endl;;
-        freqkey[minifre].erase(freqkey[minifre].begin());
-        if(freqkey[minifre].empty()){
-            freqkey.erase(minifre);
-        }
-        keyIte.erase(key);
-        keyval.erase(key);
-        keyfre.erase(key);
-    }
-    void put(int key, int value) {
-
-        if(keyval.find(key) == keyval.end()){
-            //cout<<"putting "<<key<<" new"<<endl;
-            if(keyval.size() == cap){
-                //cout<<"reaching"<<endl;
-                removelfu();
-            }
-            keyval[key] = value;
-            keyfre[key] = 1;
-            minifre = 1;
-            freqkey[1].push_back(key);
-            keyIte[key]=prev(freqkey[1].end());
-            return;
-        }
-        //cout<<"putting "<<key<<" old"<<endl;
-        keyval[key] = value;
-        int tempfreq = keyfre[key];
-        keyfre[key] = tempfreq+1;
-        freqkey[tempfreq].erase(keyIte[key]);
-        freqkey[tempfreq+1].push_back(key);
-        keyIte[key] = prev(freqkey[tempfreq+1].end());
-        if(freqkey[tempfreq].empty()){
-            freqkey.erase(tempfreq);
-            if(minifre == tempfreq) minifre++;
-        }
-    }
+    Node(int k, int v) : key(k), val(v), freq(1), next(nullptr) {}
 };
 
+class LinkList {
+public:
+    LinkList() {
+        head = std::make_shared<Node>(-1, -1);
+        tail = std::make_shared<Node>(-1, -1);
+        head->next = tail;
+        tail->prev = head;
+    }
+
+    void insertToEnd(int key, int val) {
+        auto newNode = std::make_shared<Node>(key, val);
+        auto lastNode = tail->prev.lock();
+        lastNode->next = newNode;
+        newNode->prev = lastNode;
+        newNode->next = tail;
+        tail->prev = newNode;
+    }
+
+    void insertToEnd(const std::shared_ptr<Node>& node) {
+        auto lastNode = tail->prev.lock();
+        lastNode->next = node;
+        node->prev = lastNode;
+        node->next = tail;
+        tail->prev = node;
+    }
+
+    void remove(std::shared_ptr<Node>& node) {
+        auto prevNode = node->prev.lock();
+        auto nextNode = node->next;
+        prevNode->next = nextNode;
+        nextNode->prev = prevNode;
+        node->next = nullptr;
+    }
+
+    shared_ptr<Node> removeLFU() {
+        auto firstNode = head->next;
+        head->next = firstNode->next;
+        firstNode->next->prev = head;
+        firstNode->next = nullptr;
+        return firstNode;
+    }
+
+    bool isEmpty() {
+        return head->next == tail;
+    }
+
+private:
+    std::shared_ptr<Node> head;
+    std::shared_ptr<Node> tail;
+};
+
+class LFUCache {
+public:
+    LFUCache(int capacity) : size(0), minFreq(1), cap(capacity) {
+        freqList[minFreq] = std::make_unique<LinkList>();
+    }
+
+    void put(int key, int value) {
+        if (cap <= 0) return;
+        if (mp.find(key) != mp.end()) {
+            get(key);
+            mp[key]->val = value;
+            return;  
+        }
+        if (size == cap) {
+            removeLFU();
+            size--;
+        }
+        auto newNode = std::make_shared<Node>(key, value);
+        insertNewNode(newNode);
+        mp[key] = newNode;
+        size++;
+    }
+
+    int get(int key) {
+        if (mp.find(key) == mp.end()) return -1;
+        auto node = mp[key];
+        removeNode(node);
+        node->freq++;
+        insertNewNode(node);
+
+        return node->val;
+    }
+
+private:
+    int size;
+    int minFreq;
+    int cap;
+    std::unordered_map<int, std::shared_ptr<Node>> mp;
+    std::unordered_map<int, std::unique_ptr<LinkList>> freqList;
+
+    void removeLFU() {
+        auto node = freqList[minFreq]->removeLFU();
+        mp.erase(node->key);
+        if (freqList[minFreq]->isEmpty()) {
+            minFreq++;
+        }
+    }
+
+    void removeNode(std::shared_ptr<Node>& node) {
+        int freq = node->freq;
+        freqList[freq]->remove(node);
+        if (freqList[freq]->isEmpty()) {
+            if (minFreq == freq) {
+                minFreq++;
+            }
+        }
+    }
+
+    void insertNewNode(std::shared_ptr<Node>& node) {
+        if (freqList.find(node->freq) == freqList.end()) {
+            freqList[node->freq] = std::make_unique<LinkList>();
+        }
+        freqList[node->freq]->insertToEnd(node);
+        minFreq = std::min(minFreq, node->freq);
+    }
+};
 /**
  * Your LFUCache object will be instantiated and called as such:
  * LFUCache* obj = new LFUCache(capacity);
@@ -192,5 +249,119 @@ public:
  */
 // @lc code=end
 
+// int main() {
+//     LFUCache lfu(10);
+
+//     lfu.put(10, 13);
+//     lfu.put(3, 17);
+//     lfu.put(6, 11);
+//     lfu.put(10, 5);
+//     lfu.put(9, 10);
+//     std::cout << lfu.get(13) << std::endl; // -1
+//     lfu.put(2, 19);
+//     std::cout << lfu.get(2) << std::endl; // 19
+//     std::cout << lfu.get(3) << std::endl; // 17
+//     lfu.put(5, 25);
+//     std::cout << lfu.get(8) << std::endl; // -1
+//     lfu.put(9, 22);
+//     lfu.put(5, 5);
+//     lfu.put(1, 30);
+//     std::cout << lfu.get(11) << std::endl; // -1
+//     lfu.put(9, 12);
+//     std::cout << lfu.get(7) << std::endl; // -1
+//     std::cout << lfu.get(5) << std::endl; // 5
+//     std::cout << lfu.get(8) << std::endl; // -1
+//     std::cout << lfu.get(9) << std::endl; // 12
+//     lfu.put(4, 30);
+//     lfu.put(9, 3);
+//     std::cout << lfu.get(9) << std::endl; // 3
+//     std::cout << lfu.get(10) << std::endl; // 5
+//     std::cout << lfu.get(10) << std::endl; // 5
+//     lfu.put(6, 14);
+//     lfu.put(3, 1);
+//     std::cout << lfu.get(3) << std::endl; // 1
+//     lfu.put(10, 11);
+//     std::cout << lfu.get(8) << std::endl; // -1
+//     lfu.put(2, 14);
+//     std::cout << lfu.get(1) << std::endl; // 30
+//     std::cout << lfu.get(5) << std::endl; // 5
+//     std::cout << lfu.get(4) << std::endl; // 30
+//     lfu.put(11, 4);
+//     lfu.put(12, 24);
+//     lfu.put(5, 18);
+//     std::cout << lfu.get(13) << std::endl; // -1
+//     lfu.put(7, 23);
+//     std::cout << lfu.get(8) << std::endl; // -1
+//     std::cout << lfu.get(12) << std::endl; // 24
+//     lfu.put(3, 27);
+//     lfu.put(2, 12);
+//     std::cout << lfu.get(5) << std::endl; // 18
+//     lfu.put(2, 9);
+//     lfu.put(13, 4);
+//     lfu.put(8, 18);
+//     lfu.put(1, 7);
+//     std::cout << lfu.get(6) << std::endl; // 14
+//     lfu.put(9, 29);
+//     lfu.put(8, 21);
+//     std::cout << lfu.get(5) << std::endl; // 18
+//     lfu.put(6, 30);
+//     lfu.put(1, 12);
+//     std::cout << lfu.get(10) << std::endl; // 11
+//     lfu.put(4, 15);
+//     lfu.put(7, 22);
+//     lfu.put(11, 26);
+//     lfu.put(8, 17);
+//     lfu.put(9, 29);
+//     std::cout << lfu.get(5) << std::endl; // 18
+//     lfu.put(3, 4);
+//     lfu.put(11, 30);
+//     std::cout << lfu.get(12) << std::endl; // -1
+//     lfu.put(4, 29);
+//     std::cout << lfu.get(3) << std::endl; // 4
+//     std::cout << lfu.get(9) << std::endl; // 29
+//     std::cout << lfu.get(6) << std::endl; // 30
+//     lfu.put(3, 4);
+//     std::cout << lfu.get(1) << std::endl; // 12
+//     std::cout << lfu.get(10) << std::endl; // 11
+//     lfu.put(3, 29);
+//     lfu.put(10, 28);
+//     lfu.put(1, 20);
+//     lfu.put(11, 13);
+//     std::cout << lfu.get(3) << std::endl; // 29
+//     lfu.put(3, 12);
+//     lfu.put(3, 8);
+//     lfu.put(10, 9);
+//     lfu.put(3, 26);
+//     std::cout << lfu.get(8) << std::endl; // 17
+//     std::cout << lfu.get(7) << std::endl; // -1
+//     std::cout << lfu.get(5) << std::endl; // 18
+//     lfu.put(13, 17);
+//     lfu.put(2, 27);
+//     lfu.put(11, 15);
+//     std::cout << lfu.get(12) << std::endl; // -1
+//     lfu.put(9, 19);
+//     lfu.put(2, 15);
+//     lfu.put(3, 16);
+//     std::cout << lfu.get(1) << std::endl; // 20
+//     lfu.put(12, 17);
+//     lfu.put(9, 1);
+//     lfu.put(6, 19);
+//     std::cout << lfu.get(4) << std::endl; // 29
+//     std::cout << lfu.get(5) << std::endl; // 18
+//     std::cout << lfu.get(5) << std::endl; // 18
+//     lfu.put(8, 1);
+//     lfu.put(11, 7);
+//     lfu.put(5, 2);
+//     lfu.put(9, 28);
+//     std::cout << lfu.get(1) << std::endl; // 20
+//     lfu.put(2, 2);
+//     lfu.put(7, 4);
+//     lfu.put(4, 22);
+//     lfu.put(7, 24);
+//     lfu.put(9, 26);
+//     lfu.put(13, 28);
+//     lfu.put(11, 26);
+//     return 0;
+// }
 
 
