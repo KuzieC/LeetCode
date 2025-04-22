@@ -1,0 +1,64 @@
+# Ignore build artifacts and temporary files
+build/
+.lcpr_data/
+*.exe
+*.obj
+*.o
+*.log
+*.tmp
+*.yaml
+*.cache
+*.pdb
+*.ilk
+*.user
+*.suo
+*.ncb
+*.sdf
+*.ipch
+*.tlog
+*.lastbuildstate
+*.idb
+*.VC.db
+*.VC.opendb
+*.VC.VC.opendb
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+*.code-workspace
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore CMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+
+# Ignore logs and debug files
+*.log
+*.debug
+*.out
+*.err
+
+# Ignore temporary files
+*.swp
+*.bak
+*.tmp
+*.temp
+*.~
+
+# Ignore test binaries
+test_output/
