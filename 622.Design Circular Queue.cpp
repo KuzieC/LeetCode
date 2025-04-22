@@ -103,32 +103,55 @@ using namespace std;
 // @lc code=start
 class MyCircularQueue {
 public:
+    vector<int> v;
+    int currsize;
+    int capacity;
+    int start, end;
     MyCircularQueue(int k) {
-        
+        v.resize(k*2);
+        capacity = k;
+        currsize = 0;
+        start = 0;
+        end = 0;
     }
     
     bool enQueue(int value) {
-        
+        if(currsize == capacity) return false;
+        v[end] = value;
+        cout<<"insert "<<value<<" at "<<end<<endl;
+        end++;
+        end %= capacity;    
+        currsize++;
+        cout<<"size "<<currsize<<"end is "<<end<<endl;
+        return true;
     }
     
     bool deQueue() {
-        
+        if(currsize == 0) return false;
+
+        currsize--;
+        start++;
+        start %= capacity;
+        cout<<"delete start is "<<start<<"currsize "<<currsize<<endl;
+        return true;
     }
     
     int Front() {
-        
+        if(currsize == 0) return -1;
+        return v[start];
     }
     
     int Rear() {
-        
+        if(currsize == 0) return -1;
+        return v[((end-1)+capacity)%capacity];
     }
     
     bool isEmpty() {
-        
+        return currsize == 0;
     }
     
     bool isFull() {
-        
+        return currsize == capacity;
     }
 };
 

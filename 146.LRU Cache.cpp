@@ -85,36 +85,36 @@ using namespace std;
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <memory>
 // @lcpr-template-end
 // @lc code=start
 class Node  {
 public:
     int val;
     int key;
-    Node* prev;
-    Node* next;
+    shared_ptr<Node> next;
+    weak_ptr<Node> prev;
     Node(int val, int key): val(val), key(key) {
-        prev = nullptr;
         next = nullptr;
     }
 };
 class LinkList {
 public:
-    Node* head;
-    Node* tail;
+    shared_ptr<Node> head;
+    shared_ptr<Node> tail;
     int cap;
     int siz;
     LinkList(int s) : cap(s), siz(0) {
-        head = new Node(-1,-1);
-        tail = new Node(-1,-1);
+        head = make_shared<Node>(-1,-1);
+        tail = make_shared<Node>(-1,-1);
         head->next = tail;
         tail->prev = head;
     }
 
-    Node* insert(int key,int val){
-        Node* newNode = new Node(val,key);
+    shared_ptr<Node> insert(int key,int val){
+        shared_ptr<Node> newNode = make_shared<Node>(val,key);
         auto temp = tail->prev;
-        temp->next = newNode;
+        temp.lock()->next = newNode;
         newNode->prev = temp;
         newNode->next = tail;
         tail->prev = newNode;
@@ -122,23 +122,21 @@ public:
         return newNode;
     }
 
-    void remove(Node* node){
+    void remove(shared_ptr<Node> node){
         siz--;
-        node->prev->next = node->next;
-        node->next->prev = node->prev;
+        node->prev.lock()->next = node->next;
+        node->next->prev = node->prev.lock();
         node->next = nullptr;
-        node->prev = nullptr;
-        delete node;
     }
 
 };
 class LRUCache {
 public:
-    unordered_map<int,Node*> mp;
+    unordered_map<int,shared_ptr<Node>> mp;
     int siz;
-    LinkList* link;
+    shared_ptr<LinkList> link;
     LRUCache(int capacity): siz(capacity) {
-        link = new LinkList(capacity);
+        link = make_shared<LinkList>(capacity);
 
     }
     
@@ -146,6 +144,7 @@ public:
         if (mp.find(key) == mp.end()){
             return -1;
         }
+        //cout<<"getting "<<key<<endl;
         int val = mp[key]->val;
         link->remove(mp[key]);
         auto newNode = link->insert(key,val);
@@ -157,10 +156,13 @@ public:
         if (mp.find(key) != mp.end()){
             link->remove(mp[key]);
         }
+        //cout<<"putting "<<key<<endl;
         auto newNode = link->insert(key,value);
         mp[key] = newNode;
         if (link->siz > siz){
+            mp.erase(link->head->next->key);
             link->remove(link->head->next);
+
         }
     }
 };
@@ -173,5 +175,18 @@ public:
  */
 // @lc code=end
 
+int main() {
+    LRUCache lRUCache(2);
+    lRUCache.put(1, 1); // cache is {1=1}
+    lRUCache.put(2, 2); // cache is {1=1, 2=2}
+    std::cout << lRUCache.get(1) << std::endl; // return 1
+    lRUCache.put(3, 3); // evicts key 2
+    std::cout << lRUCache.get(2) << std::endl; // returns -1
+    lRUCache.put(4, 4); // evicts key 1
+    std::cout << lRUCache.get(1) << std::endl; // return -1
+    std::cout << lRUCache.get(3) << std::endl; // return 3
+    std::cout << lRUCache.get(4) << std::endl; // return 4
+    return 0;
+}
 
 
