@@ -50,8 +50,24 @@ using namespace std;
 // @lc code=start
 class Solution {
 public:
+    vector<vector<int>> memo;
+
     int numTrees(int n) {
-        
+        memo.resize(n+1,vector<int>(n+1,0));
+        return helper(1,n);
+    }
+
+    int helper(int lo, int hi){
+        if(lo >= hi) return 1;
+        int res = 0;
+        if(memo[lo][hi] != 0) return memo[lo][hi];
+        for(int mid = lo; mid <= hi; mid++){
+            int left = helper(lo,mid-1);
+            int right = helper(mid+1,hi);
+            res += left * right;
+        }
+        memo[lo][hi] = res;
+        return memo[lo][hi];
     }
 };
 // @lc code=end
