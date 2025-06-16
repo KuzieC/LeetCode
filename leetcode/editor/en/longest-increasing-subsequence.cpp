@@ -64,7 +64,28 @@ using namespace std;
 class Solution {
 public:
     int lengthOfLIS(vector<int>& nums) {
-        
+        vector<int> dp(nums.size(),0);
+        int count = 0;
+        int pile = 0;
+        for(auto i : nums){
+            int left = 0;
+            int right = pile;
+            while(left < right){
+                int mid = left + (right - left)/2;
+                if(dp[mid] < i){
+                    left = mid + 1;
+                }
+                else{
+                    right = mid;
+                }
+            }
+            dp[left] = i;
+            if(left == pile){
+                pile+=1;
+                count++;   
+            }
+        }
+        return count;
     }
 };
 // @lc code=end
