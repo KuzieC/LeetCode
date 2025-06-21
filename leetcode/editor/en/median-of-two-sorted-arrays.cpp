@@ -60,31 +60,36 @@ using namespace std;
 class Solution {
 public:
     double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
-        vector<int> res;
-        int x = 0, y = 0;
-        int sumSize = nums1.size() + nums2.size();
-        while(res.size() < sumSize/2 + 1){
-            if(x < nums1.size() && y < nums2.size()){
-                if(nums1[x] < nums2[y]){
-                    res.push_back(nums1[x++]);
-                }
+        int m = nums1.size(), n = nums2.size();
+
+        int target = (m + n) / 2;
+        if(target == 0 && (m== 0 || n == 0)){
+            return m == 0 ? double(nums2[0]) : double(nums1[0]);
+        }
+        if( m < n) return findMedianSortedArrays(nums2,nums1);
+        int firstHalf = m / 2;
+        while(firstHalf >= 0 && firstHalf <= m){
+            int secondHalf = target - firstHalf;
+            int maxLeft = firstHalf > 0 ? nums1[firstHalf-1] : INT_MIN;
+            int minLeft = firstHalf < m ? nums1[firstHalf] : INT_MAX;
+            int maxRight = secondHalf > 0 ? nums2[secondHalf-1]: INT_MIN;
+            int minRight = secondHalf < n ? nums2[secondHalf] : INT_MAX;
+            if(maxLeft <= minRight && maxRight <= minLeft){
+                if((m+n)%2 == 0){
+                    return (max(maxLeft,maxRight) + min(minLeft,minRight))/2.0;
+                } 
                 else{
-                    res.push_back(nums2[y++]);
+                    return double(min(minLeft,minRight));
                 }
             }
-            else if(x < nums1.size()){
-                res.push_back(nums1[x++]);
+            else if(maxLeft > minRight){
+                firstHalf--;
             }
-            else if(y < nums2.size()){
-                res.push_back(nums2[y++]);
+            else{
+                firstHalf++;
             }
         }
-        if(sumSize % 2){
-            return res[sumSize/2];
-        }
-        else{
-            return ((res[sumSize/2-1]) + res[sumSize/2]) / 2.0;
-        }
+        return 0.0;
     }
 };
 // @lc code=end
