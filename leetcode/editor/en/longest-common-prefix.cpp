@@ -82,6 +82,7 @@ public:
             if(curr->end){
                 res+=curr->val;
                 return res.substr(1);
+                
             }
             for(auto i : curr->neigh){
                 if(i!= nullptr){
