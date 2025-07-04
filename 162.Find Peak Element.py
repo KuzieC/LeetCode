@@ -59,7 +59,16 @@
 # @lc code=start
 class Solution:
     def findPeakElement(self, nums: List[int]) -> int:
-        
+        lo = 0
+        hi =len(nums)-1
+        while lo < hi:
+            mid = lo + (hi - lo)//2
+            if mid != len(nums)-1 and nums[mid] > nums[mid+1]:
+                hi = mid
+            else:
+                lo = mid+1
+        return lo
+            
 # @lc code=end
 
 
