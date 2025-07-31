@@ -82,7 +82,17 @@
 # @lc code=start
 class Solution:
     def countStudents(self, students: List[int], sandwiches: List[int]) -> int:
-        
+        ori1 = students.count(1)
+        ori0 = students.count(0)
+        for i in sandwiches:
+            if i == 1:
+                ori1 -= 1
+            else:
+                ori0 -= 1
+            if ori1 == -1 or ori0 == -1:
+                return ori1 + ori0 + 1
+        return 0
+            
 # @lc code=end
 
 
