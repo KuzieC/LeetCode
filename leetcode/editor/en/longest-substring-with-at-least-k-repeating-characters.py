@@ -88,7 +88,7 @@ class Solution:
 
 #
 # @lcpr case=start
-# "aaabb"\n3\n
+# "bbaaacddcaabdbd"\n3\n
 # @lcpr case=end
 
 # @lcpr case=start
