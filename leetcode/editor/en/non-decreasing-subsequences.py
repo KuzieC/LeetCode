@@ -45,19 +45,19 @@
 class Solution:
     def __init__(self):
         self.res = []
-    def dfs(self,nums,ind,list):
-        if len(list) > 1:
-            self.res.append(list.copy())
+    def dfs(self,nums,ind,curr):
+        if len(curr) >= 2:
+            self.res.append(curr[:])
         used = set()
         for i in range(ind,len(nums)):
             if nums[i] in used:
                 continue
+            if curr and nums[i] < curr[-1]:
+                continue
             used.add(nums[i])
-            if len(list) == 0 or list[-1] <= nums[i]:
-                list.append(nums[i])
-                self.dfs(nums,i+1,list)
-                list.pop()
-        
+            curr.append(nums[i])
+            self.dfs(nums,i+1,curr)
+            curr.pop()                
     def findSubsequences(self, nums: List[int]) -> List[List[int]]:
         self.dfs(nums,0,[])
         return self.res
