@@ -85,7 +85,7 @@ class Solution:
         dirs = [[1,0],[-1,0],[0,1],[0,-1]]
         pac = set()
         atl = set()
-        def dfs(visited : set(),curr_r,curr_c):
+        def dfs(visited : set,curr_r,curr_c):
             visited.add((curr_r,curr_c))
             for a,b in dirs:
                 nr = a + curr_r
@@ -99,8 +99,7 @@ class Solution:
         for i in range(row):
             dfs(pac,i,0)
             dfs(atl,i,col-1)
-        res = [i for i in pac if i in atl]
-        return res
+        return [[a,b] for a,b in pac & atl]
 # @lc code=end
 
 

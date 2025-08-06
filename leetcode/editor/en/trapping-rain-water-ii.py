@@ -60,9 +60,13 @@ class Solution:
         for i in range(col):
             heapq.heappush(pq,(heightMap[0][i],0,i))
             heapq.heappush(pq,(heightMap[row-1][i],row-1,i))
+            visited.add((0,i))
+            visited.add((row-1,i))
         for i in range(1,row-1):
             heapq.heappush(pq,(heightMap[i][0],i,0))
             heapq.heappush(pq,(heightMap[i][col-1],i,col-1))
+            visited.add((i,0))
+            visited.add((i,col-1))
         while pq:
             val,r,c = heapq.heappop(pq)
 

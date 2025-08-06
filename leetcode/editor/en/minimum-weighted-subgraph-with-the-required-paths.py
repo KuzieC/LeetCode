@@ -89,12 +89,13 @@ class Solution:
         for f,t,wei in edges:
           adj[f].append((t,wei))
           rev_adj[t].append((f,wei))
+        print(adj)
         def bfs(curr,lis,start):
           q = []
           heapq.heappush(q,(0,curr))  
           while q:
             sum,curr = heapq.heappop(q)
-            if sum != shortest[curr][start]:
+            if sum > shortest[curr][start]:
               continue
             for neig,w in lis[curr]:
               if shortest[neig][start] > w+sum:
@@ -104,6 +105,7 @@ class Solution:
         bfs(src2,adj,1)
         bfs(dest,rev_adj,2)
         res = INF
+        print(shortest)
         for i in range(n):
             res = min(res,sum(shortest[i]))
         return res if res != INF else -1
@@ -116,7 +118,7 @@ class Solution:
 
 #
 # @lcpr case=start
-# 6\n[[0,2,2],[0,5,6],[1,0,3],[1,4,5],[2,1,1],[2,3,3],[2,3,4],[3,4,2],[4,5,1]]\n0\n1\n5\n
+# 6\n[[0,2,2],[0,5,6],[2,1,1]]\n0\n1\n5\n
 # @lcpr case=end
 
 # @lcpr case=start
